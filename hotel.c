@@ -112,14 +112,12 @@ void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, 
                                 Available[i].checkoutDay = cd;
                                 strcpy(Available[i].roomType, tmptype);
                                 i++;
-                                printf("Success");
                             }
                         }
                     }
                 }
             }
         }
-        printf("Available rooms: %d", i);
         Available[0].availableRooms = i;
         fclose(fp);
 }
@@ -181,6 +179,7 @@ int main(void){
     while(true){
         printf("Please enter an option: ");
         scanf("%d", &userInput1);
+        system("cls");
         switch(userInput1){
             case 1: //register();
                 msgInfo("Please complete the details below to register.");
@@ -205,11 +204,13 @@ int main(void){
                         bookMenu("Bookings", "Modify Booking", "View Status", CurrentUser.id);
                         printf("Please enter an option: ");
                         scanf("%d", &userInput2);
+                        system("cls");
                         switch(userInput2){
                             case 1:
                                 bookMenu("Availability Check", "Reservation", "Go Back", CurrentUser.id);
                                 printf("Please enter an option: ");
                                 scanf("%d", &userInput3);
+                                system("cls");
                                 switch(userInput3){
                                     case 1:
                                         bookMenu("Duplex", "Single Bedroom", "Double Bedroom", CurrentUser.id);
@@ -232,9 +233,21 @@ int main(void){
                                         // scanf("%d", &Availability.checkoutDay);
                                         // availability(Availability.roomId, Availability.userCapacity, Availability.checkinYear, Availability.checkinMonth, Availability.checkinDay, Availability.checkoutMonth, Availability.checkoutDay);
                                         availability(1,4,2018,11,26,11,30);
-                                        for(int j = 0; j <= Available[0].availableRooms; j++){
-                                            printf("Room Number: %d", Available[j].roomNumber);
+                                        printf("----------------------------------------------\n");
+                                        printf("Available Rooms: %d                           \n", Available[0].availableRooms);
+                                        for(int j = 0; j < Available[0].availableRooms; j++){
+                                            printf("----------------------------------------------\n");
+                                            printf("Room Number: %d\n", Available[j].roomNumber);
+                                            printf("Room Type: %s\n", Available[j].roomType);
+                                            printf("Capacity: %d\n", Available[j].roomCapacity);
+                                            printf("----------------------------------------------\n");
 
+                                        }
+                                        printf("Would you like to continue? (y/n):");
+                                        char cont;
+                                        scanf("%s", &cont);
+                                        if(cont == 'y'){
+                                            continue;
                                         }
                                         // for(int j = 0; j <= i; j++){
                                         //     printf("%d", Available[j].roomNumber);
