@@ -48,9 +48,85 @@ void login(char userid[], char password[]){
         }
 }
 
+// Booking System START
+void bookMenu(char a[], char b[], char c[], char d[]){
+    printf("##############################################\n");
+    printf("#         Welcome to Suite Bliss!            #\n");
+    printf("##############################################\n");
+    printf("# User-ID: %s                                 \n", d);
+    printf("----------------------------------------------\n");
+    printf("               1. %s                          \n", a);
+    printf("               2. %s                          \n", b);
+    printf("               3. %s                          \n", c);
+    printf("----------------------------------------------\n");
+    printf("----------------------------------------------\n");
+}
+
+struct Booking {
+    int roomId; // identifier for room type
+    int roomNumber; 
+    int roomCapacity;
+    int userCapacity;
+    int checkinYear;
+    int checkinMonth;
+    int checkinDay;
+    int checkoutMonth;
+    int checkoutDay;
+    char roomType[64];
+    int idRegistered;
+};
+struct Booking Availability; 
+struct Booking Available[100]; // gathered list of available rooms
+
+void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, int cd){
+    int tmpID;
+    int tmproomNum;
+    int tmproomCap;
+    int tmpuserCap;
+    int tmpcY;
+    int tmpcM;
+    int tmpcD;
+    int tmpcm;
+    int tmpcd;
+    char tmptype[64];
+    int tmpuserID;
+    int i = 0;
+    FILE *fp;
+    fp = fopen("rooms.txt","r");
+        while(fscanf(fp, "%d %d %d %d %d %d %d %d %d %s %d\n", &tmpID, &tmproomNum, &tmproomCap, &tmpuserCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
+            if(tmpID == roomID){ // validate/get room type
+                if(userCapacity <= tmproomCap){ // validate capacity
+                    if((tmpcY == cY) && (tmpcM >= cM) && (tmpcD < cD )){ // validate check in date
+                        if((tmpcm > cm) || ((tmpcm == cm) && (tmpcd > cd ))){ // validate check out date
+                            if(tmpuserID == 0){ // validate room vacancy - 0 means empty
+                                Available[i].roomId = tmpID;
+                                Available[i].roomNumber = tmproomNum;
+                                Available[i].roomCapacity = tmproomCap;
+                                Available[i].userCapacity = tmpuserCap;
+                                Available[i].checkinYear = tmpcY;
+                                Available[i].checkinMonth = tmpcM;
+                                Available[i].checkinDay = tmpcD;
+                                Available[i].checkoutMonth = tmpcd;
+                                Available[i].checkoutDay = tmpcd;
+                                Available[i].roomType = tmptype[20];
+                                printf("Success");
+                            }
+
+                        }
+                    }
+                    
+                }
+            }
+        }
+        fclose(fp);
+}
+// Booking System END
+
 struct User users[64];
 struct User CurrentUser;
 char userInput1;
+char userInput2;
+char userInput3;
 
 // count number of records to generate userid
 int countRecords(char *file){
@@ -121,7 +197,45 @@ int main(void){
                 scanf("%s", &CurrentUser.password);
                 login(CurrentUser.id, CurrentUser.password);
                 if(isLogged == 1){
-                    printf("Welcome to the booking system.");
+                    system("cls");
+                    while(true){
+                        bookMenu("Bookings", "Modify Booking", "View Status", CurrentUser.id);
+                        printf("Please enter an option: ");
+                        scanf("%d", &userInput2);
+                        switch(userInput2){
+                            case 1:
+                                bookMenu("Availability Check", "Reservation", "Go Back", CurrentUser.id);
+                                printf("Please enter an option: ");
+                                scanf("%d", &userInput3);
+                                switch(userInput3){
+                                    case 1:
+                                        bookMenu("Duplex", "Single Bedroom", "Double Bedroom", CurrentUser.id);
+                                        printf("Select Room Type: ");
+                                        scanf("%d", &Availability.roomId);
+                                        // printf("No. of adults/kids: ");
+                                        // scanf("%d", &Availability.userCapacity);
+                                        // printf("Check In Date: \n");
+                                        // printf("Year: ");
+                                        // scanf("%d", &Availability.checkinYear);
+                                        // printf("Month (in number): ");
+                                        // scanf("%d", &Availability.checkinMonth);
+                                        // printf("Day: ");
+                                        // scanf("%d", &Availability.checkinDay);
+                                        // printf("----------------------------------------------\n");
+                                        // printf("Check Out Date: \n");
+                                        // printf("Month: ");
+                                        // scanf("%d", &Availability.checkoutMonth);
+                                        // printf("Day: ");
+                                        // scanf("%d", &Availability.checkoutDay);
+                                        // availability(Availability.roomId, Availability.userCapacity, Availability.checkinYear, Availability.checkinMonth, Availability.checkinDay, Availability.checkoutMonth, Availability.checkoutDay);
+                                        availability(1,4,2018,11,2,11,24);
+                                    case 2:
+                                    case 3:
+                                        break;
+                                }
+                        }
+
+                    }
                 }else{
                     printf("Invalid Credentials.\n\n");
                     continue;
