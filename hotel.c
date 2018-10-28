@@ -74,9 +74,11 @@ struct Booking {
     int checkoutDay;
     char roomType[64];
     int idRegistered;
+    int availableRooms;
 };
 struct Booking Availability; 
 struct Booking Available[100]; // gathered list of available rooms
+
 
 void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, int cd){
     int tmpID;
@@ -93,31 +95,32 @@ void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, 
     int i = 0;
     FILE *fp;
     fp = fopen("rooms.txt","r");
-        while(fscanf(fp, "%d %d %d %d %d %d %d %d %d %s %d\n", &tmpID, &tmproomNum, &tmproomCap, &tmpuserCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
+        while(fscanf(fp, "%d %d %d %d %d %d %d %d %s %d", &tmpID, &tmproomNum, &tmproomCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
             if(tmpID == roomID){ // validate/get room type
                 if(userCapacity <= tmproomCap){ // validate capacity
-                    if((tmpcY == cY) && (tmpcM >= cM) && (tmpcD < cD )){ // validate check in date
+                    if((tmpcY == cY) && (((tmpcM == cM) && (tmpcD <= cD )) || (tmpcM > cM))){ // validate check in date
                         if((tmpcm > cm) || ((tmpcm == cm) && (tmpcd > cd ))){ // validate check out date
                             if(tmpuserID == 0){ // validate room vacancy - 0 means empty
                                 Available[i].roomId = tmpID;
                                 Available[i].roomNumber = tmproomNum;
                                 Available[i].roomCapacity = tmproomCap;
-                                Available[i].userCapacity = tmpuserCap;
-                                Available[i].checkinYear = tmpcY;
-                                Available[i].checkinMonth = tmpcM;
-                                Available[i].checkinDay = tmpcD;
-                                Available[i].checkoutMonth = tmpcd;
-                                Available[i].checkoutDay = tmpcd;
-                                Available[i].roomType = tmptype[20];
+                                Available[i].userCapacity = userCapacity;
+                                Available[i].checkinYear = cY;
+                                Available[i].checkinMonth = cM;
+                                Available[i].checkinDay = cD;
+                                Available[i].checkoutMonth = cm;
+                                Available[i].checkoutDay = cd;
+                                strcpy(Available[i].roomType, tmptype);
+                                i++;
                                 printf("Success");
                             }
-
                         }
                     }
-                    
                 }
             }
         }
+        printf("Available rooms: %d", i);
+        Available[0].availableRooms = i;
         fclose(fp);
 }
 // Booking System END
@@ -228,7 +231,14 @@ int main(void){
                                         // printf("Day: ");
                                         // scanf("%d", &Availability.checkoutDay);
                                         // availability(Availability.roomId, Availability.userCapacity, Availability.checkinYear, Availability.checkinMonth, Availability.checkinDay, Availability.checkoutMonth, Availability.checkoutDay);
-                                        availability(1,4,2018,11,2,11,24);
+                                        availability(1,4,2018,11,26,11,30);
+                                        for(int j = 0; j <= Available[0].availableRooms; j++){
+                                            printf("Room Number: %d", Available[j].roomNumber);
+
+                                        }
+                                        // for(int j = 0; j <= i; j++){
+                                        //     printf("%d", Available[j].roomNumber);
+                                        // }
                                     case 2:
                                     case 3:
                                         break;
