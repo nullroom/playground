@@ -9,6 +9,26 @@ struct account {
 };
 
 struct account accounts[10];
+// void read_file(struct account accounts[]){
+//     FILE *fp;
+//     int i = 0;
+//     int c;
+//     fp = fopen("user.txt","r");
+//     while(!feof(fp)){
+//         c = fgetc(fp);
+//         if(c == '\n'){
+//             ++i;
+//         }
+//     }
+//         int j = 0;
+//         rewind(fp);
+
+//         while(j != i - 1){
+//             fscanf(fp, "%s %s %s", accounts[j].id, accounts[j].name, accounts[j].password);
+//             ++j;
+//         }
+//     }
+
 void read_file(struct account accounts[]){
     FILE *fp;
     int i = 0;
@@ -28,6 +48,7 @@ void read_file(struct account accounts[]){
             ++j;
         }
     }
+
 
 
 int main(void) {

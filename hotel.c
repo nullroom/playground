@@ -11,6 +11,13 @@ struct User {
     char name[64];
     char password[64];
 };
+struct User users[64];
+struct User CurrentUser;
+char userInput1;
+char userInput2;
+char userInput3;
+char userInput4;
+int isLogged = 0;
 
 void read_file(struct User users[]){
     FILE *fp;
@@ -31,7 +38,7 @@ void read_file(struct User users[]){
     }
     fclose(fp);
 }
-int isLogged = 0;
+
 void login(char userid[], char password[]){
     char temp_id[64];
     char temp_name[64];
@@ -47,7 +54,6 @@ void login(char userid[], char password[]){
             }
         }
 }
-
 // Booking System START
 void bookMenu(char a[], char b[], char c[], char d[]){
     printf("##############################################\n");
@@ -75,23 +81,17 @@ struct Booking {
     char roomType[64];
     int idRegistered;
     int availableRooms;
+    char reason[64];
 };
 struct Booking Availability; 
 struct Booking Available[100]; // gathered list of available rooms
-
+struct Booking Booked; // create reservation
+struct Booking Modify; // modify reservation
+struct Booking Cancel; // cancel reservation
 
 void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, int cd){
-    int tmpID;
-    int tmproomNum;
-    int tmproomCap;
-    int tmpuserCap;
-    int tmpcY;
-    int tmpcM;
-    int tmpcD;
-    int tmpcm;
-    int tmpcd;
+    int tmpID, tmproomNum, tmproomCap, tmpuserCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;;
     char tmptype[64];
-    int tmpuserID;
     int i = 0;
     FILE *fp;
     fp = fopen("rooms.txt","r");
@@ -121,13 +121,74 @@ void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, 
         Available[0].availableRooms = i;
         fclose(fp);
 }
-// Booking System END
 
-struct User users[64];
-struct User CurrentUser;
-char userInput1;
-char userInput2;
-char userInput3;
+void bookRoom(int roomNum, char name[], int age, char gender[], int cY, int cM, int cD, int cm, int cd, char userID[]){
+    int tmpID, tmproomNum, tmproomCap, tmpuserCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
+    char tmptype[64];
+    int i = 0;
+    FILE *fp, *fpout, *fpout2;
+    fp = fopen("rooms.txt","r");
+    fpout = fopen("tmp_rooms.txt", "w");
+    fpout2 = fopen("booked.txt", "a");
+        while(fscanf(fp, "%d %d %d %d %d %d %d %d %s %d", &tmpID, &tmproomNum, &tmproomCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
+            if(tmproomNum == roomNum){
+                fprintf(fpout, "%d %d %d %d %d %d %d %d %s %s\n", tmpID, tmproomNum, tmproomCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmptype, userID);
+                fprintf(fpout2, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, age, gender, cY, cM, cD, cm, cd, userID);
+            }else{
+                fprintf(fpout, "%d %d %d %d %d %d %d %d %s %d\n", tmpID, tmproomNum, tmproomCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmptype, tmpuserID);
+            }
+        }
+        fclose(fp);
+        fclose(fpout);
+        fclose(fpout2);
+        remove("rooms.txt");
+        rename("tmp_rooms.txt", "rooms.txt");
+}
+
+void modifyRoom(int roomNum, int cY, int cM, int cD, int cm, int cd, char userID[]){
+    int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
+    char name[64];
+    char gender[64];
+    int i = 0;
+    FILE *fp, *fpout;
+    fp = fopen("booked.txt","r");
+    fpout = fopen("tmp_booked.txt", "w");
+        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+            if(tmproomNum == roomNum){
+                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, cY, cM, cD, cm, cd, userID);
+            }else{
+                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, userID);
+            }
+        }
+        fclose(fp);
+        fclose(fpout);
+        remove("booked.txt");
+        rename("tmp_booked.txt", "booked.txt");
+}
+
+void cancelRoom(int roomNum, char reason[]){
+    int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
+    char name[64];
+    char gender[64];
+    FILE *fp, *fpout, *fpout1;
+    fp = fopen("booked.txt","r");
+    fpout = fopen("cancellation.txt", "w");
+    // fpout1 = fopen("tmp_booked.txt", "w");
+        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+            if(tmproomNum == roomNum){
+                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, reason);
+            }else{
+                fprintf(fpout1, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID);
+            }
+        }
+        fclose(fp);
+        // fclose(fpout1);
+        fclose(fpout);
+        // remove("booked.txt");
+        // rename("tmp_booked.txt", "booked.txt");
+}
+
+// Booking System END
 
 // count number of records to generate userid
 int countRecords(char *file){
@@ -199,8 +260,8 @@ int main(void){
                 scanf("%s", &CurrentUser.password);
                 login(CurrentUser.id, CurrentUser.password);
                 if(isLogged == 1){
-                    system("cls");
                     while(true){
+                        system("cls");
                         bookMenu("Bookings", "Modify Booking", "View Status", CurrentUser.id);
                         printf("Please enter an option: ");
                         scanf("%d", &userInput2);
@@ -216,23 +277,23 @@ int main(void){
                                         bookMenu("Duplex", "Single Bedroom", "Double Bedroom", CurrentUser.id);
                                         printf("Select Room Type: ");
                                         scanf("%d", &Availability.roomId);
-                                        // printf("No. of adults/kids: ");
-                                        // scanf("%d", &Availability.userCapacity);
-                                        // printf("Check In Date: \n");
-                                        // printf("Year: ");
-                                        // scanf("%d", &Availability.checkinYear);
-                                        // printf("Month (in number): ");
-                                        // scanf("%d", &Availability.checkinMonth);
-                                        // printf("Day: ");
-                                        // scanf("%d", &Availability.checkinDay);
-                                        // printf("----------------------------------------------\n");
-                                        // printf("Check Out Date: \n");
-                                        // printf("Month: ");
-                                        // scanf("%d", &Availability.checkoutMonth);
-                                        // printf("Day: ");
-                                        // scanf("%d", &Availability.checkoutDay);
-                                        // availability(Availability.roomId, Availability.userCapacity, Availability.checkinYear, Availability.checkinMonth, Availability.checkinDay, Availability.checkoutMonth, Availability.checkoutDay);
-                                        availability(1,4,2018,11,26,11,30);
+                                        printf("No. of adults/kids: ");
+                                        scanf("%d", &Availability.userCapacity);
+                                        printf("Check In Date: \n");
+                                        printf("Year: ");
+                                        scanf("%d", &Availability.checkinYear);
+                                        printf("Month (in number): ");
+                                        scanf("%d", &Availability.checkinMonth);
+                                        printf("Day: ");
+                                        scanf("%d", &Availability.checkinDay);
+                                        printf("----------------------------------------------\n");
+                                        printf("Check Out Date: \n");
+                                        printf("Month: ");
+                                        scanf("%d", &Availability.checkoutMonth);
+                                        printf("Day: ");
+                                        scanf("%d", &Availability.checkoutDay);
+                                        availability(Availability.roomId, Availability.userCapacity, Availability.checkinYear, Availability.checkinMonth, Availability.checkinDay, Availability.checkoutMonth, Availability.checkoutDay);
+                                        // availability(1,4,2018,11,26,11,30);
                                         printf("----------------------------------------------\n");
                                         printf("Available Rooms: %d                           \n", Available[0].availableRooms);
                                         for(int j = 0; j < Available[0].availableRooms; j++){
@@ -249,15 +310,97 @@ int main(void){
                                         if(cont == 'y'){
                                             continue;
                                         }
-                                        // for(int j = 0; j <= i; j++){
-                                        //     printf("%d", Available[j].roomNumber);
-                                        // }
                                     case 2:
+                                        system("cls");
+                                        msgInfo("Enter details to make Reservation");
+                                        printf("Room Number: ");
+                                        scanf("%d", &Booked.roomNumber);
+                                        printf("Name: ");
+                                        scanf("%s", &CurrentUser.name);
+                                        printf("Age: ");
+                                        scanf("%d", &CurrentUser.age);
+                                        printf("Gender: ");
+                                        scanf("%s", &CurrentUser.gender);
+                                        printf("Check-In Date: \n");
+                                        printf("Year: ");
+                                        scanf("%d", &Booked.checkinYear);
+                                        printf("Month: ");
+                                        scanf("%d", &Booked.checkinMonth);
+                                        printf("Day: ");
+                                        scanf("%d", &Booked.checkinDay);
+                                        printf("Check-Out Date: \n");
+                                        printf("Month: ");
+                                        scanf("%d", &Booked.checkoutMonth);
+                                        printf("Day: ");
+                                        scanf("%d", &Booked.checkoutDay);
+                                        bookRoom(Booked.roomNumber, CurrentUser.name, CurrentUser.age, CurrentUser.gender, Booked.checkinYear, Booked.checkinMonth, Booked.checkinDay, Booked.checkoutMonth, Booked.checkoutDay, CurrentUser.id);
+                                        system("cls");
+                                        msgInfo("Room Booking Confirmation");
+                                        printf("----------------------------------------------\n");
+                                        printf("Room Number: %d\n", Booked.roomNumber);
+                                        printf("Name: %s\n", CurrentUser.name);
+                                        printf("Age: %d\n", CurrentUser.age);
+                                        printf("Gender: %s\n", CurrentUser.gender);
+                                        printf("CheckIn Date: %d/%d/%d\n", Booked.checkinDay, Booked.checkinMonth, Booked.checkinYear);
+                                        printf("CheckOut Date: %d/%d/%d\n", Booked.checkoutDay, Booked.checkinMonth);
+                                        printf("----------------------------------------------\n");
+                                        printf("Would you like to continue? (y/n):");
+                                        char cont1;
+                                        scanf("%s", &cont1);
+                                        if(cont1 == 'y'){
+                                            continue;
+                                        }
                                     case 3:
                                         break;
                                 }
+                            case 2:
+                                bookMenu("Modify Reservation", "Cancellation", "Go Back", CurrentUser.id);
+                                printf("Please enter an option: ");
+                                scanf("%d", &userInput4);
+                                switch(userInput4){
+                                    case 1:
+                                        msgInfo("Modify Room Reservation");
+                                        printf("Enter room number: ");
+                                        scanf("%d", &Modify.roomNumber);
+                                        printf("New Check In Date: \n");
+                                        printf("----------------------------------------------\n");
+                                        printf("Year: ");
+                                        scanf("%d", &Modify.checkinYear);
+                                        printf("Month: ");
+                                        scanf("%d", &Modify.checkinMonth);
+                                        printf("Day: ");
+                                        scanf("%d", &Modify.checkinDay);
+                                        printf("----------------------------------------------\n");
+                                        printf("New Check Out Date: \n");
+                                        printf("----------------------------------------------\n");
+                                        printf("Month: ");
+                                        scanf("%d", &Modify.checkoutMonth);
+                                        printf("Day: ");
+                                        scanf("%d", &Modify.checkoutDay);
+                                        modifyRoom(Modify.roomNumber, Modify.checkinYear, Modify.checkinMonth, Modify.checkinDay, Modify.checkoutMonth, Modify.checkoutDay, CurrentUser.id);
+                                        msgInfo("Booking Successfully Modified");
+                                        char cont2;
+                                        printf("Would you like to continue? (y/n): ");
+                                        scanf("%s", &cont2);
+                                        if(cont2 == 'y'){
+                                            break;
+                                        }
+                                    case 2:
+                                        msgInfo("Room Reservation Cancellation");
+                                        printf("Enter room number: ");
+                                        scanf("%d", &Cancel.roomNumber);
+                                        printf("Reason: ");
+                                        scanf("%s", &Cancel.reason);
+                                        cancelRoom(Cancel.roomNumber, Cancel.reason);
+                                        msgInfo("Reservation Successfully Cancelled");
+                                        printf("Would you like to continue? (y/n):");
+                                        char cont3;
+                                        if(cont3 == 'y'){
+                                            break;
+                                        }
+                                }
                         }
-
+                    // break;
                     }
                 }else{
                     printf("Invalid Credentials.\n\n");
