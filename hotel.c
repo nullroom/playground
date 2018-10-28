@@ -167,25 +167,24 @@ void modifyRoom(int roomNum, int cY, int cM, int cD, int cm, int cd, char userID
 }
 
 void cancelRoom(int roomNum, char reason[]){
-    int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
-    char name[64];
-    char gender[64];
-    FILE *fp, *fpout, *fpout1;
-    fp = fopen("booked.txt","r");
-    fpout = fopen("cancellation.txt", "w");
-    // fpout1 = fopen("tmp_booked.txt", "w");
-        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
-            if(tmproomNum == roomNum){
-                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, reason);
-            }else{
-                fprintf(fpout1, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID);
-            }
-        }
-        fclose(fp);
-        // fclose(fpout1);
-        fclose(fpout);
-        // remove("booked.txt");
-        // rename("tmp_booked.txt", "booked.txt");
+    // int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
+    // char name[64];
+    // char gender[64];
+    // int i = 0;
+    // FILE *fp, *fpout;
+    // fp = fopen("booked.txt","a+");
+    // fpout = fopen("cancellation.txt", "w");
+    //     while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+    //         if(tmproomNum == roomNum){
+    //             fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, reason);
+    //         }else{
+    //             fprintf(fp, "%d %s %d %s %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID);
+    //         }
+    //     }
+    //     fclose(fp);
+    //     fclose(fpout);
+    //     // remove("booked.txt");
+    //     // rename("tmp_booked.txt", "booked.txt");
 }
 
 // Booking System END
@@ -398,6 +397,8 @@ int main(void){
                                         if(cont3 == 'y'){
                                             break;
                                         }
+                                    case 3:
+                                        break;
                                 }
                         }
                     // break;
