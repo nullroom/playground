@@ -1,6 +1,6 @@
-1 20 10 2018 11 1 12 5 Duplex 0
+1 20 10 2018 11 1 12 5 Duplex 2
 1 22 5 2018 12 6 12 26 Duplex 0
-1 21 10 2018 11 24 12 15 Duplex 0
+1 21 10 2018 11 24 12 15 Duplex 2
 1 23 25 2018 11 30 12 26 Duplex 0
 2 30 15 2018 11 1 12 30 Single_Bedroom 0
 2 31 5 2018 10 15 11 30 Single_Bedroom 0
@@ -9,4 +9,4 @@
 3 40 5 2018 11 1 12 30 Double_Bedroom 0
 3 41 6 2018 10 30 11 30 Double_Bedroom 0
 3 42 8 2018 11 15 12 6 Double_Bedroom 0
-3 43 10 2018 11 11 12 12 Double_Bedroom 0
+3 43 6 2018 11 5 11 30 Double_Bedroom 0
