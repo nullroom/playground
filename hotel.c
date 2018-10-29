@@ -11,23 +11,24 @@ struct User {
     char name[64];
     char password[64];
 };
+
 struct User users[100];
 struct User CurrentUser;
-char userInput1;
-char userInput2;
-char userInput3;
-char userInput4;
-char userInput5;
-int isLogged = 0;
+char userInput1; // main menu
+char userInput2; // bookings sub menu
+char userInput3; // room vacancy & reservation menu
+char userInput4; // booking edit/cancellation menu
+char userInput5; // user reservations menu
+int isLogged = 0; 
+
 // admin panel START
 int isAdmin = 0;
 int aOption1; // first admin option
 int aOption1a; // first admin sub option
 int aOption2; 
-
 // admin panel STOP
 
-void read_file(struct User users[]){
+void read_file(struct User users[]){ // read user.txt file
     FILE *fp;
     int i = 0;
     int c;
@@ -47,7 +48,7 @@ void read_file(struct User users[]){
     fclose(fp);
 }
 
-int login(char userid[], char password[]){
+int login(char userid[], char password[]){ // return 1 if credentials are correct
     char temp_id[64];
     char temp_name[64];
     char temp_password[64];
@@ -61,19 +62,8 @@ int login(char userid[], char password[]){
             }   
     }
 }
+
 // Booking System START
-void bookMenu(char a[], char b[], char c[], char d[]){
-    printf("##############################################\n");
-    printf("#         Welcome to Suite Bliss!            #\n");
-    printf("##############################################\n");
-    printf("# User-ID: %s                                 \n", d);
-    printf("----------------------------------------------\n");
-    printf("               1. %s                          \n", a);
-    printf("               2. %s                          \n", b);
-    printf("               3. %s                          \n", c);
-    printf("----------------------------------------------\n");
-    printf("----------------------------------------------\n");
-}
 
 struct Booking {
     int roomId; // identifier for room type
@@ -85,11 +75,11 @@ struct Booking {
     int checkinDay;
     int checkoutMonth;
     int checkoutDay;
-    char roomType[64];
     int idRegistered;
     int availableRooms;
-    char reason[64];
     int reservations;
+    char reason[64];
+    char roomType[64];
 
 };
 struct Booking Availability; 
@@ -106,6 +96,20 @@ struct Booking searchRes[100]; // search reservations
 struct Booking cancellations[100]; // list of cancelled bookings 
 // admin section STOP
 
+void bookMenu(char a[], char b[], char c[], char d[]){
+    printf("##############################################\n");
+    printf("#         Welcome to Suite Bliss!            #\n");
+    printf("##############################################\n");
+    printf("# User-ID: %s                                 \n", d);
+    printf("----------------------------------------------\n");
+    printf("               1. %s                          \n", a);
+    printf("               2. %s                          \n", b);
+    printf("               3. %s                          \n", c);
+    printf("----------------------------------------------\n");
+    printf("----------------------------------------------\n");
+}
+
+// check vacant rooms
 void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, int cd){
     int tmpID, tmproomNum, tmproomCap, tmpuserCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;;
     char tmptype[64];
@@ -117,7 +121,7 @@ void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, 
                 if(userCapacity <= tmproomCap){ // validate capacity
                     if((tmpcY == cY) && (((tmpcM == cM) && (tmpcD <= cD )) || (tmpcM > cM))){ // validate check in date
                         if((tmpcm > cm) || ((tmpcm == cm) && (tmpcd > cd ))){ // validate check out date
-                            if(tmpuserID == 0){ // validate room vacancy - 0 means empty
+                            if(tmpuserID == 0){ // validate room vacancy - 0 means vacant
                                 Available[i].roomId = tmpID;
                                 Available[i].roomNumber = tmproomNum;
                                 Available[i].roomCapacity = tmproomCap;
@@ -135,10 +139,11 @@ void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, 
                 }
             }
         }
-        Available[0].availableRooms = i;
-        fclose(fp);
+    Available[0].availableRooms = i;
+    fclose(fp);
 }
 
+// book vacant room and reserve
 void bookRoom(int roomNum, char name[], int age, char gender[], int cY, int cM, int cD, int cm, int cd, char userID[]){
     int tmpID, tmproomNum, tmproomCap, tmpuserCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
     char tmptype[64];
@@ -147,22 +152,23 @@ void bookRoom(int roomNum, char name[], int age, char gender[], int cY, int cM, 
     fp = fopen("rooms.txt","r");
     fpout = fopen("tmp_rooms.txt", "w");
     fpout2 = fopen("booked.txt", "a");
-        while(fscanf(fp, "%d %d %d %d %d %d %d %d %s %d", &tmpID, &tmproomNum, &tmproomCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
-            if(tmproomNum == roomNum){
-                fprintf(fpout, "%d %d %d %d %d %d %d %d %s %s\n", tmpID, tmproomNum, tmproomCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmptype, userID);
-                fprintf(fpout2, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, age, gender, cY, cM, cD, cm, cd, userID);
-            }else{
-                fprintf(fpout, "%d %d %d %d %d %d %d %d %s %d\n", tmpID, tmproomNum, tmproomCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmptype, tmpuserID);
-            }
+    while(fscanf(fp, "%d %d %d %d %d %d %d %d %s %d", &tmpID, &tmproomNum, &tmproomCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
+        if(tmproomNum == roomNum){
+            fprintf(fpout, "%d %d %d %d %d %d %d %d %s %s\n", tmpID, tmproomNum, tmproomCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmptype, userID);
+            fprintf(fpout2, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, age, gender, cY, cM, cD, cm, cd, userID);
+        }else{
+            fprintf(fpout, "%d %d %d %d %d %d %d %d %s %d\n", tmpID, tmproomNum, tmproomCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmptype, tmpuserID);
         }
-        fclose(fp);
-        fclose(fpout);
-        fclose(fpout2);
-        remove("rooms.txt");
-        rename("tmp_rooms.txt", "rooms.txt");
+    }
+    fclose(fp);
+    fclose(fpout);
+    fclose(fpout2);
+    remove("rooms.txt");
+    rename("tmp_rooms.txt", "rooms.txt"); // delete original file and replace with updated file
 }
 
-void modifyRoom(int roomNum, int cY, int cM, int cD, int cm, int cd, char userID[]){
+// modify check in and check out dates
+void modifyRoom(int roomNum, int cY, int cM, int cD, int cm, int cd, char userID[]){ 
     int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
     char name[64];
     char gender[64];
@@ -170,19 +176,20 @@ void modifyRoom(int roomNum, int cY, int cM, int cD, int cm, int cd, char userID
     FILE *fp, *fpout;
     fp = fopen("booked.txt","r");
     fpout = fopen("tmp_booked.txt", "w");
-        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
-            if(tmproomNum == roomNum){
-                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, cY, cM, cD, cm, cd, userID);
-            }else{
-                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, userID);
-            }
+    while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+        if(tmproomNum == roomNum){
+            fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", roomNum, name, tmpAge, gender, cY, cM, cD, cm, cd, userID);
+        }else{
+            fprintf(fpout, "%d %s %d %s %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, userID);
         }
-        fclose(fp);
-        fclose(fpout);
-        remove("booked.txt");
-        rename("tmp_booked.txt", "booked.txt");
+    }
+    fclose(fp);
+    fclose(fpout);
+    remove("booked.txt");
+    rename("tmp_booked.txt", "booked.txt");
 }
 
+// cancel room reservation
 void cancelRoom(int roomNum, char reason[]){
     int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;
     char name[64];
@@ -191,19 +198,19 @@ void cancelRoom(int roomNum, char reason[]){
     fp = fopen("booked.txt","a+");
     fpout = fopen("cancellation.txt", "w");
     fpout4 = fopen("tmps_booked.txt", "w");
-        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
-            if(tmproomNum == roomNum){
-                fprintf(fpout, "%d %s %d %s %d %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID, reason);
-                
-            }else{
-                fprintf(fpout4, "%d %s %d %s %d %d %d %d %d %d\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID);
-            }
+    while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+        if(tmproomNum == roomNum){
+            fprintf(fpout, "%d %s %d %s %d %d %d %d %d %d %s\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID, reason);
+            
+        }else{
+            fprintf(fpout4, "%d %s %d %s %d %d %d %d %d %d\n", tmproomNum, name, tmpAge, gender, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID);
         }
-        fclose(fpout4);
-        fclose(fp);
-        fclose(fpout);
-        remove("booked.txt");
-        rename("tmps_booked.txt", "booked.txt");
+    }
+    fclose(fpout4);
+    fclose(fp);
+    fclose(fpout);
+    remove("booked.txt");
+    rename("tmps_booked.txt", "booked.txt");
 }
 
 void reservations(int userid){ // user reservations
@@ -214,21 +221,20 @@ void reservations(int userid){ // user reservations
     int i = 0;
     FILE *fp;
     fp = fopen("booked.txt","r");
-        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
-            if(tmpuserID == userid){
-                Reservation[i].roomNumber = tmproomNum;
-                Reservation[i].checkinYear = tmpcY;
-                Reservation[i].checkinMonth = tmpcM;
-                Reservation[i].checkinDay = tmpcD;
-                Reservation[i].checkoutMonth = tmpcm;
-                Reservation[i].checkoutDay = tmpcd;
-                i++;
-            }
+    while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &name, &tmpAge, &gender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+        if(tmpuserID == userid){
+            Reservation[i].roomNumber = tmproomNum;
+            Reservation[i].checkinYear = tmpcY;
+            Reservation[i].checkinMonth = tmpcM;
+            Reservation[i].checkinDay = tmpcD;
+            Reservation[i].checkoutMonth = tmpcm;
+            Reservation[i].checkoutDay = tmpcd;
+            i++;
         }
-        Reservation[0].reservations = i;
-        fclose(fp);
+    }
+    Reservation[0].reservations = i;
+    fclose(fp);
 }
-
 // Booking System END
 
 void viewRoom(){
@@ -237,20 +243,20 @@ void viewRoom(){
     int i = 0;
     FILE *fp;
     fp = fopen("rooms.txt","r");
-        while(fscanf(fp, "%d %d %d %d %d %d %d %d %s %d", &tmpID, &tmproomNum, &tmproomCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
-            roomView[i].roomId = tmpID;
-            roomView[i].roomNumber = tmproomNum;
-            roomView[i].roomCapacity = tmproomCap;
-            roomView[i].checkinYear = tmpcY;
-            roomView[i].checkinMonth = tmpcM;
-            roomView[i].checkinDay = tmpcD;
-            roomView[i].checkoutMonth = tmpcm;
-            roomView[i].checkoutDay = tmpcd;
-            strcpy(roomView[i].roomType, tmptype);
-            i++;                         
-        }
-        roomView[0].availableRooms = i;
-        fclose(fp);
+    while(fscanf(fp, "%d %d %d %d %d %d %d %d %s %d", &tmpID, &tmproomNum, &tmproomCap, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, tmptype, &tmpuserID) != EOF){
+        roomView[i].roomId = tmpID;
+        roomView[i].roomNumber = tmproomNum;
+        roomView[i].roomCapacity = tmproomCap;
+        roomView[i].checkinYear = tmpcY;
+        roomView[i].checkinMonth = tmpcM;
+        roomView[i].checkinDay = tmpcD;
+        roomView[i].checkoutMonth = tmpcm;
+        roomView[i].checkoutDay = tmpcd;
+        strcpy(roomView[i].roomType, tmptype);
+        i++;                         
+    }
+    roomView[0].availableRooms = i;
+    fclose(fp);
 }
 
 void searchReservations(int roomNum){
@@ -259,20 +265,20 @@ void searchReservations(int roomNum){
     char tmpName[64];
     FILE *fp;
     fp = fopen("booked.txt","r");
-        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &tmpName, &tmpAge, &tmpGender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
-            if(tmproomNum == roomNum){
-                searchRes[0].roomNumber = tmproomNum;
-                strcpy(users[0].name, tmpName);
-                users[0].age = tmpAge;
-                strcpy(users[0].gender, tmpGender);
-                searchRes[0].checkinYear = tmpcY;
-                searchRes[0].checkinMonth = tmpcM;
-                searchRes[0].checkinDay = tmpcD;
-                searchRes[0].checkoutMonth = tmpcm;
-                searchRes[0].checkoutDay = tmpcd;
-            }
+    while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &tmpName, &tmpAge, &tmpGender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
+        if(tmproomNum == roomNum){
+            searchRes[0].roomNumber = tmproomNum;
+            strcpy(users[0].name, tmpName);
+            users[0].age = tmpAge;
+            strcpy(users[0].gender, tmpGender);
+            searchRes[0].checkinYear = tmpcY;
+            searchRes[0].checkinMonth = tmpcM;
+            searchRes[0].checkinDay = tmpcD;
+            searchRes[0].checkoutMonth = tmpcm;
+            searchRes[0].checkoutDay = tmpcd;
         }
-        fclose(fp);
+    }
+    fclose(fp);
 }
 
 void viewReservations(){
