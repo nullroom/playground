@@ -99,10 +99,12 @@ struct Booking Modify; // modify reservation
 struct Booking Cancel; // cancel reservation
 struct Booking Reservation[100]; // store reservation details
 
-struct Booking roomView[100]; // view rooms for admin
-struct Booking resView[100]; // view reservations for admin
-struct Booking searchRes[100]; // search reservations for admin
-
+// admin section START
+struct Booking roomView[100]; // view rooms 
+struct Booking resView[100]; // view reservations 
+struct Booking searchRes[100]; // search reservations 
+struct Booking cancellations[100]; // list of cancelled bookings 
+// admin section STOP
 
 void availability(int roomID, int userCapacity, int cY, int cM, int cD, int cm, int cd){
     int tmpID, tmproomNum, tmproomCap, tmpuserCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;;
@@ -252,27 +254,24 @@ void viewRoom(){
 }
 
 void searchReservations(int roomNum){
-    int tmpID, tmproomNum, tmproomCap, tmpuserCap, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;;
+    int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;;
     char tmpGender[64];
     char tmpName[64];
-    int i = 0;
     FILE *fp;
     fp = fopen("booked.txt","r");
         while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d", &tmproomNum, &tmpName, &tmpAge, &tmpGender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID) != EOF){
             if(tmproomNum == roomNum){
-                searchRes[i].roomNumber = tmproomNum;
-                strcpy(users[i].name, tmpName);
-                users[i].age = tmpAge;
-                strcpy(users[i].gender, tmpGender);
-                searchRes[i].checkinYear = tmpcY;
-                searchRes[i].checkinMonth = tmpcM;
-                searchRes[i].checkinDay = tmpcD;
-                searchRes[i].checkoutMonth = tmpcm;
-                searchRes[i].checkoutDay = tmpcd;
+                searchRes[0].roomNumber = tmproomNum;
+                strcpy(users[0].name, tmpName);
+                users[0].age = tmpAge;
+                strcpy(users[0].gender, tmpGender);
+                searchRes[0].checkinYear = tmpcY;
+                searchRes[0].checkinMonth = tmpcM;
+                searchRes[0].checkinDay = tmpcD;
+                searchRes[0].checkoutMonth = tmpcm;
+                searchRes[0].checkoutDay = tmpcd;
             }
-            i++;                         
         }
-        searchRes[0].availableRooms = i;
         fclose(fp);
 }
 
@@ -296,6 +295,31 @@ void viewReservations(){
             i++;                         
         }
         resView[0].availableRooms = i;
+        fclose(fp);
+}
+
+void viewCancellations(){
+    int tmproomNum, tmpAge, tmpcY, tmpcM, tmpcD, tmpcm, tmpcd, tmpuserID;;
+    char tmpName[64];
+    char tmpGender[64];
+    char tmpReason[64];
+    int i = 0;
+    FILE *fp;
+    fp = fopen("cancellation.txt","r");
+        while(fscanf(fp, "%d %s %d %s %d %d %d %d %d %d %s", &tmproomNum, tmpName, &tmpAge, tmpGender, &tmpcY, &tmpcM, &tmpcD, &tmpcm, &tmpcd, &tmpuserID, tmpReason) != EOF){
+            cancellations[i].roomNumber = tmproomNum;
+            strcpy(users[i].name, tmpName);
+            strcpy(users[i].gender, tmpGender);
+            strcpy(cancellations[i].reason, tmpReason);
+            users[i].age = tmpAge;
+            cancellations[i].checkinYear = tmpcY;
+            cancellations[i].checkinMonth = tmpcM;
+            cancellations[i].checkinDay = tmpcD;
+            cancellations[i].checkoutMonth = tmpcm;
+            cancellations[i].checkoutDay = tmpcd;
+            i++;                         
+        }
+        cancellations[0].availableRooms = i;
         fclose(fp);
 }
 
@@ -405,7 +429,7 @@ int main(void){
                             printf("Please enter an option: ");
                             scanf("%d", &aOption1);
                             switch(aOption1){
-                                case 1:
+                                case 1: // modify room details
                                     system("cls");
                                     bookMenu("View Rooms", "Modify Room", "Go Back", CurrentUser.id);
                                     printf("Please select an option: ");
@@ -486,18 +510,46 @@ int main(void){
                                         case 2: // search reservation
                                             msgInfo("Search Reservations");
                                             printf("Enter room number: ");
-                                            scanf("%d", Booked.roomNumber);
-                                            searchReservations(Booked.roomNumber);
+                                            scanf("%d", &Booked.roomNumber);
+                                            searchReservations(Booked.roomNumber);   
+                                            printf("----------------------------------------------\n");
+                                            printf("Room No.: %d\n", searchRes[0].roomNumber);
+                                            printf("Name: %s\n", users[0].name);
+                                            printf("Age: %d\n", users[0].age);
+                                            printf("Gender: %s\n", users[0].gender);
+                                            printf("Check-In Date: %d/%d/%d\n", searchRes[0].checkinDay, searchRes[0].checkinMonth, searchRes[0].checkinYear);
+                                            printf("Check-Out Date: %d/%d\n", searchRes[0].checkoutDay, searchRes[0].checkoutMonth);
+                                            printf("----------------------------------------------\n");
                                             printf("Would you like to continue? (y/n) :");
                                             char cont8;
                                             scanf("%s", &cont8);
                                             if(cont8 == 'y'){
                                                 continue;
                                             }
-                                        // case 3: // go back
+                                        case 3: // go back
+                                            break;
                                     }
-                                case 3:
-                                    break;
+                                case 3: // view cancellations
+                                    msgInfo("View Cancellations");
+                                    viewCancellations();
+                                    for(int j = 0; j < cancellations[0].availableRooms; j++){
+                                        printf("----------------------------------------------\n");
+                                        printf("Room No.: %d\n", cancellations[j].roomNumber);
+                                        printf("Name: %s\n", users[j].name);
+                                        printf("Age: %d\n", users[j].age);
+                                        printf("Gender: %s\n", users[j].gender);
+                                        printf("Check-In Date: %d/%d/%d\n", cancellations[j].checkinDay, cancellations[j].checkinMonth, cancellations[j].checkinYear);
+                                        printf("Check-Out Date: %d/%d\n", cancellations[j].checkoutDay, cancellations[j].checkoutMonth);
+                                        printf("Reason: %s\n", cancellations[j].reason);
+                                        printf("----------------------------------------------\n");
+                                    }
+                                    printf("Would you like to continue? (y/n) :");
+                                    char cont9;
+                                    scanf("%s", &cont9);
+                                    if(cont9 == 'y'){
+                                        break;
+                                    }
+                                    
                             }
                         }
                     }else if(isLogged == 1){
