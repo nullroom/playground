@@ -68,7 +68,7 @@ int login(char userid[], char password[]){ // return 1 if credentials are correc
 struct Booking {
     int roomId; // identifier for room type
     int roomNumber; 
-    int roomCapacity;
+    int roomCapacity; // room properties
     int userCapacity;
     int checkinYear;
     int checkinMonth;
